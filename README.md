@@ -11,12 +11,12 @@ The widgets are organized into the following categories, representing different 
 *   **Molecules**: Groups of atoms and/or elements bonded together to form a functional, reusable unit.
 *   **Organisms**: Relatively complex UI components composed of molecules, atoms, and elements, forming distinct sections of an interface.
 
-##Screenshots
+## Screenshots
 
-###FIGMA
+### FIGMA
 <img src="./screenshots/figma.png" />
 
-###Result
+### Result
 <img src="./screenshots/resultado.png" />
 
 ---
