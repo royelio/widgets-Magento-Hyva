@@ -1,0 +1,71 @@
+<?php
+/** @var \Movistar\HyvaWidgets\Block\Molecule\Splitbanner $block */
+/** @var \Magento\Framework\Escaper $escaper */
+
+$title = $block->getData('title') ?: '';
+$subtitle = $block->getData('subtitle') ?: '';
+$footer = $block->getData('footer') ?: '';
+$style = $block->getData('style') ?: 's1';
+
+$imageUrl = $block->resolveImage($block->getData('image'));
+$mobileImageUrl = $block->resolveImage($block->getData('mobileimage'));
+
+?>
+
+<div class="container w-full max-w-full bg-white p-4 box-border rounded-lg mt-6 mb-8
+    md:mb-12 md:px-8 md:py-4 lg:mt-12 lg:mb-16 lg:px-10 lg:py-8"
+     data-element-ga="banner"
+     data-ga-business-team="hogar"
+     data-ga-business-mod="b2c"
+     data-ga-product-comercial_name="<?= $escaper->escapeHtmlAttr($title) ?>"
+     data-ga-product-comercial_id=""
+>
+    <div class="grid grid-cols-1 items-center max-w-[1200px] m-auto md:grid-cols-2">
+
+        <?php if ($imageUrl && $style == 's2'): ?>
+            <div class="relative">
+                <picture>
+                    <?php if ($mobileImageUrl): ?>
+                        <source media="(max-width: 767px)" srcset="<?= /*·@noEscape·*/ $mobileImageUrl ?>">
+                    <?php endif; ?>
+                    <source media="(min-width: 768px)" srcset="<?= /*·@noEscape·*/ $imageUrl ?>">
+                    <img src="<?= /*·@noEscape·*/ $imageUrl ?>" alt="Ampliación WiFi 8" />
+                </picture>
+            </div>
+        <?php endif; ?>
+
+        <div>
+            <h2 class="text-2xl text-text-primary mb-2 w-[260px] md:w-[300px] lg:text-2xl
+                xl:w-[350px] xl:text-[32px] xl:leading-[40px]">
+                <?= $escaper->escapeHtml($title) ?>
+            </h2>
+
+            <p class="font-roboto text-base text-text-secondary mb-10 lg:text-base lg:mb-8 xl:text-lg">
+                <?= $escaper->escapeHtml($subtitle) ?>
+            </p>
+
+            <?= /* @noEscape */ $block->getDecodedContent() ?>
+
+        </div>
+        <?php if ($imageUrl && $style == 's1'): ?>
+            <div class="relative flex justify-center mt-12 mb-2 md:m-0 lg:justify-end">
+                <picture>
+                    <?php if ($mobileImageUrl): ?>
+                        <source media="(max-width: 767px)" srcset="<?= /*·@noEscape·*/ $mobileImageUrl ?>">
+                    <?php endif; ?>
+                    <source media="(min-width: 768px)" srcset="<?= /*·@noEscape·*/ $imageUrl ?>">
+                    <img class="max-w-full lg:max-w-[448px] xl:max-w-[648px]"
+                         src="<?= /*·@noEscape·*/ $imageUrl ?>" alt="<?= $escaper->escapeHtmlAttr($title) ?>"
+                         loading="lazy"/>
+                </picture>
+            </div>
+        <?php endif; ?>
+
+        <div class="w-full md:mt-8 xl:mt-0">
+            <p class="font-roboto text-xs leading-[20px] text-text-secondary m-0 lg:text-sm">
+                <?= $escaper->escapeHtml($footer) ?>
+            </p>
+        </div>
+
+    </div>
+</div>

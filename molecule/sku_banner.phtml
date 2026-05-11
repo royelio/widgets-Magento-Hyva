@@ -1,0 +1,104 @@
+<?php
+/** @var \Movistar\HyvaWidgets\Block\Molecule\Splitbanner $block */
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Hyva\Theme\Model\ViewModelRegistry $viewModels */
+
+use Movistar\Hogarb2c\ViewModel\ProductData;
+use Movistar\Hogarb2c\ViewModel\PriceWithoutTax;
+
+$sku = $block->getData('sku_banner');
+$productViewModel = $viewModels->require(ProductData::class);
+$withoutTax = $viewModels->require(PriceWithoutTax::class);
+$productData = $productViewModel->getProductBySku($sku);
+
+$internetServices = $productViewModel->getInternetFiberOptions();
+$noTotalizable = $internetServices['no_totalizable'];
+$totalizable = $internetServices['totalizable'];
+$index = array_search($sku, array_column($totalizable, 'sku'));
+
+$title = $productData['title'];
+if (is_array($title)) {
+    $title = implode(' ', array_filter($title));
+}
+
+?>
+
+<div class="container w-full max-w-full bg-white p-4 box-border rounded-lg mt-6 mb-8
+    md:mb-12 md:mt-12 md:px-8 md:py-4 lg:mt-12 lg:mb-16 lg:px-10 lg:py-4 xl:py-8"
+     data-element-ga="banner"
+     data-ga-business-team="hogar"
+     data-ga-business-mod="b2c"
+     data-ga-product-comercial_name="<?= $escaper->escapeHtmlAttr($title) ?>"
+     data-ga-product-comercial_id="<?= $escaper->escapeHtmlAttr($productData['sku']) ?>"
+>
+    <div class="grid grid-cols-1 items-center max-w-[1298px] m-auto md:grid-cols-2">
+
+        <div class="max-w-[480px]">
+            <h2 class="text-2xl text-text-primary mb-2 w-[260px] md:w-[300px] lg:text-2xl
+                xl:w-[350px] xl:text-[32px] xl:leading-[40px]">
+                <?= $escaper->escapeHtml($title) ?>
+                <?= $escaper->escapeHtml($productData['price'] . ' ' . __('per month')) ?>
+                <?php if ($productData['card_promo_info']): ?>
+                    <span class="font-robotoregular text text-font-xxl-2 text-font-xxxl_desktop text-color-purple-2">
+                            <?= $escaper->escapeHtml($productData['card_promo_info']) ?>
+                        </span>
+                <?php endif; ?>
+            </h2>
+
+            <p class="font-roboto text-base leading-[24px] text-text-secondary mb-10 lg:mb-8 xl:text-lg">
+                <?= $escaper->escapeHtml($productData['product_type_label']) ?>
+            </p>
+
+            <?php if (!empty($productData['landing_description'])
+            && !empty($productData['landing_description'][0]['title'])): ?>
+                <p class="font-roboto text-sm text-text-secondary mb-2 md:mb-4 lg:mb-4 xl:text-base">
+                    <?= $escaper->escapeHtml($productData['landing_description'][0]['title']) ?>
+                </p>
+            <?php endif; ?>
+
+            <?php foreach ($productData["landing_description"] as $key): ?>
+                <?php if (count($key['descriptions']) !== 0): ?>
+                <ul class="font-roboto text-sm space-y-2 text-text-secondary xl:text-base">
+                    <?php foreach ($key["descriptions"] as $description): ?>
+                        <li class="flex items-center gap-2 mb-2 md:mb-4">
+                            <img
+                                src="<?= $escaper->escapeHtml($block->getViewFileUrl('images/icons/icon-check.svg')) ?>"
+                                alt="icon-check"
+                                class="w-4 h-4 mr-1"
+                            />
+                            <?= $escaper->escapeHtml($description) ?>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+                <?php endif; ?>
+            <?php endforeach; ?>
+
+        </div>
+        <?php if ($productData['swatch_image']): ?>
+            <div class="relative flex justify-center mt-13 mb-2 md:m-0 lg:justify-end">
+                <picture>
+                    <source media="(min-width: 768px)"
+                            srcset="<?= $escaper->escapeHtmlAttr($productData['swatch_image']) ?>">
+                    <img class="w-full max-w-[328px] lg:max-w-[448px] xl:max-w-[648px]"
+                         src="<?= $escaper->escapeHtmlAttr($productData['swatch_image']) ?>"
+                         alt="<?= $escaper->escapeHtmlAttr($title) ?>" />
+                </picture>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($productData['price_without_currency'])): ?>
+            <div class="w-full md:mt-4 xl:mt-0">
+                <p class="max-w-[328px] mx-auto font-roboto text-xs leading-[16px] text-text-secondary m-0
+                    md:mx-0 lg:text-sm lg:leading-[20px]">
+                    <?= $escaper->escapeHtml(__(
+                        'Price without national taxes: %1',
+                        $withoutTax->generatePriceWithoutTax(
+                            $productData['price_without_currency']
+                        )
+                    )) ?>
+                </p>
+            </div>
+        <?php endif; ?>
+
+    </div>
+</div>

@@ -1,0 +1,79 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Movistar\HyvaWidgets\Block\Atom\InfoCard;
+
+/** @var InfoCard $block */
+/** @var Escaper $escaper */
+
+$style = $block->getData('style') ?: 's1';
+$text = $block->getData('text') ?: '';
+$colorData = $block->getData('color');
+$tooltip = $block->getData('tooltip') ?: '';
+
+$color = ($colorData == '#000000' || !$colorData) ? '#f5f5f5' : $colorData;
+
+?>
+
+<?php if ($style == 's1'): ?>
+    <div class="flex items-center gap-2 p-2 bg-neutral-100 rounded-lg mb-4 mx-4 w-full max-w-[264px]
+    md:max-w-[222px] lg:max-w-[256px]"
+         style="background: <?= $block->escapeHtml($color) ?>">
+        <img
+            src="<?= $escaper->escapeHtmlAttr($block->getViewFileUrl('images/icons/icon-megaphone.svg')) ?>"
+            alt="icon-megaphone"
+            class="w-6 h-6 p-0.5 box-border lg:w-8 lg:h-8"
+        />
+
+        <div class="text-xs leading-[16px] font-roboto text-text-primary flex items-center gap-1
+            lg:text-sm lg:leading-[20px]">
+            <?= $escaper->escapeHtml($text) ?>
+        </div>
+    </div>
+<?php else: ?>
+    <div class="relative flex items-center gap-2 p-2 bg-neutral-100 rounded-lg mx-4 mb-4 w-full max-w-[264px]
+    md:max-w-[222px] lg:max-w-[256px]"
+         style="background: <?= $block->escapeHtml($color) ?>"
+         x-data="{ open: false }">
+
+        <img
+            src="<?= $escaper->escapeHtmlAttr($block->getViewFileUrl('images/icons/icon-check.svg')) ?>"
+            alt="icon-check"
+            class="w-6 h-6 p-1 box-border"
+        />
+
+        <!-- Text + tooltip -->
+        <div class="text-xs font-roboto text-text-primary leading-[16px] flex items-center gap-1 justify-between
+            w-full lg:text-sm lg:leading-[20px]">
+            <?= $escaper->escapeHtml($text) ?>
+            <div class="relative inline-block">
+                <button
+                    @mouseenter="open = true"
+                    @mouseleave="open = false"
+                    type="button"
+                    class="focus:outline-none w-6 h-6 flex justify-center items-center"
+                    aria-label="Información"
+                >
+                    <img
+                        src="<?= $escaper->escapeHtmlAttr($block->getViewFileUrl('images/icons/icon-info.svg')) ?>"
+                        alt="icon-info"
+                        class="w-4 h-4"
+                    />
+                </button>
+                <!-- Tooltip -->
+                <div
+                    x-cloak
+                    x-show="open"
+                    x-transition
+                    class="absolute -top-[230px] -right-2 z-20 w-3xs px-6 py-2 bg-white border-gray-300
+                    border rounded-lg text-text-gray text-xs shadow-lg"
+                >
+                    <?= /* @noEscape */ $block->getDecodedContent() ?>
+                    <div class="absolute right-3 top-full w-0 h-0 border-x-8 border-x-transparent border-t-8
+                        border-t-white drop-shadow(0 0 2px rgba(0,0,0,0.5))"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php endif; ?>

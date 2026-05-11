@@ -1,0 +1,33 @@
+<?php
+/** @var \Movistar\HyvaWidgets\Block\Molecule\Featurecard $block */
+/** @var \Magento\Framework\Escaper $escaper */
+
+$badge = $block->getData('badge') ?: '';
+$title = $block->getData('title') ?: '';
+$description = $block->getData('description') ?: '';
+
+?>
+
+<div class="px-4 box-border w-full max-w-full md:px-0">
+    <div class="border border-border-primary rounded-lg p-4 bg-surface w-full max-w-full mt-16 mb-12
+    md:max-w-[704px] md:mx-auto lg:max-w-[944px] lg:mt-20 lg:mb-18 xl:max-w-[1024px]">
+
+        <!-- Badge -->
+        <span class="inline-block bg-bg-yelow text-on-accent
+            font-roboto font-medium text-sm mb-1 px-1 py-0.5 rounded-md">
+            <?= $escaper->escapeHtml($badge) ?>
+        </span>
+
+        <!-- Title -->
+        <h3 class="font-roboto font-normal text-text-primary text-base leading-[24px] mb-0.5 lg:text-lg">
+            <?= $escaper->escapeHtml($title) ?>
+        </h3>
+
+        <!-- Description -->
+        <p class="font-roboto font-normal text-text-gray text-sm leading-[20px] lg:text-base lg:leading-[24px]">
+            <?= $escaper->escapeHtml($description) ?>
+        </p>
+
+    </div>
+</div>
+

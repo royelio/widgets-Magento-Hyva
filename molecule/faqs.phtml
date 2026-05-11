@@ -1,0 +1,81 @@
+<?php
+/** @var \Movistar\HyvaWidgets\Block\Molecule\Featurecard $block */
+/** @var \Magento\Framework\Escaper $escaper */
+
+$faqs = [];
+
+$ranges = [
+    [1, 5, true],
+    [6, 10, $block->getData('show_6_10') == '1'],
+    [11, 15, $block->getData('show_11_15') == '1'],
+    [16, 20, $block->getData('show_16_20') == '1'],
+];
+
+foreach ($ranges as [$start, $end, $enabled]) {
+    if (!$enabled) {
+        continue;
+    }
+
+    for ($i = $start; $i <= $end; $i++) {
+        $question = trim((string) $block->getData("question_$i"));
+        $answer   = trim((string) $block->getDecodedContent("answer_$i"));
+
+        if ($question && $answer) {
+            $faqs[] = compact('question', 'answer');
+        }
+    }
+}
+
+?>
+
+<!-- FAQS -->
+<?php if (!empty($faqs)): ?>
+    <div class="mx-auto w-full px-4 faqs-container mb-10 md:max-w-[704px] lg:max-w-[944px] xl:max-w-[1224px]">
+        <div class="mt-13.5 mb-10 lg:mt-11 lg:mb-11">
+            <?php foreach ($faqs as $faq): ?>
+                <div x-data="{ open: false }" class="faq-box px-0 pt-6 pb-[25px] border-b-1 border-gray-200 m-0
+                box-border lg:pt-4 lg:pb-[33px]">
+                    <button
+                        type="button"
+                        class="flex w-full items-center justify-between gap-4 faq-button"
+                        @click="open = !open"
+                        :aria-expanded="open.toString()"
+                    >
+                            <span class="faq-question font-roboto text-text-primary text-base text-left
+                                lg:text-lg lg:leading-[24px]">
+                                <?= $escaper->escapeHtml($faq['question']) ?>
+                            </span>
+
+                        <span
+                            class="shrink-0 transition-transform duration-200 faq-chevron"
+                            :class="open ? 'rotate-180' : ''"
+                            aria-hidden="true"
+                        >
+                                <img
+                                    src="<?= $escaper->
+                                    escapeHtml($block->getViewFileUrl('images/icons/icon-chevron-gray.svg')) ?>"
+                                    alt=""
+                                    class="h-4 w-4"
+                                />
+                            </span>
+                    </button>
+
+                    <div
+                        x-ref="container"
+                        x-bind:style="open
+                            ? 'max-height: ' + $refs.container.scrollHeight + 'px'
+                            : 'max-height: 0px'"
+                        class="overflow-hidden transition-all duration-300 ease-in-out"
+                    >
+                        <div class="mt-6 mb-4 faq-answer bg-white border border-gray-200 p-4 rounded-lg font-roboto
+                                text-left text-text-primary text-sm lg:text-base">
+                            <?= $escaper->escapeHtml($faq['answer']) ?>
+                        </div>
+                    </div>
+                </div>
+
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php endif; ?>
+

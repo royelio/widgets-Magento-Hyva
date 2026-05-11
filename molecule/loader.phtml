@@ -1,0 +1,85 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\ViewModel\HyvaCsp;
+
+/** @var Escaper $escaper */
+/** @var HyvaCsp $hyvaCsp */
+
+$defaultMessage = __('Please wait while we load the information...');
+
+?>
+
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('pegasusGlobalLoader', () => ({
+
+            isLoading: false,
+            startedAt: null,
+            minDuration: 0,
+
+            defaultMessage: '<?= $escaper->escapeJs($defaultMessage) ?>',
+            message: '<?= $escaper->escapeJs($defaultMessage) ?>',
+
+            init() {
+                window.addEventListener('pegasus:loader:show', (event) => {
+                    this.startedAt = Date.now();
+                    this.minDuration = event.detail?.minDuration ?? 0;
+                    this.message = event.detail?.message || this.defaultMessage;
+
+                    this.isLoading = true;
+                });
+
+                window.addEventListener('pegasus:loader:hide', () => {
+                    this.handleHideEvent();
+                });
+            },
+
+            handleHideEvent() {
+                if (!this.startedAt || !this.minDuration) {
+                    this.forceHide();
+                    return;
+                }
+
+                const elapsed = Date.now() - this.startedAt;
+                const remaining = this.minDuration - elapsed;
+
+                if (remaining > 0) {
+                    setTimeout(() => this.forceHide(), remaining);
+                } else {
+                    this.forceHide();
+                }
+            },
+
+            forceHide() {
+                this.isLoading = false;
+                this.message = this.defaultMessage;
+                this.startedAt = null;
+                this.minDuration = 0;
+            }
+        }));
+
+    }, { once: true });
+</script>
+
+<?php $hyvaCsp->registerInlineScript(); ?>
+
+<div
+    id="pegasus-global-loader"
+    x-data="pegasusGlobalLoader()"
+    class="fixed inset-0 flex items-center justify-center bg-white/95 z-50"
+    x-show="isLoading"
+    x-transition.opacity
+    role="status"
+    aria-live="polite"
+>
+    <div
+        class="absolute top-[40%] left-1/2 mt-8 -ml-5
+           h-[38px] w-[38px] rounded-full
+           border-[3px] border-(--color-primary) border-t-transparent
+           animate-spin lg:h-[56px] lg:w-[56px]"
+    ></div>
+    <p class="text-text-primary font-roboto text-center text-lg mt-8 lg:text-[28px] lg:mt-14" x-text="message">
+    </p>
+</div>

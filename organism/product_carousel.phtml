@@ -1,0 +1,245 @@
+<?php
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Movistar\HyvaWidgets\Block\Organism\ProductCarousel;
+use Movistar\HyvaWidgets\ViewModel\TemplateRenderer;
+
+/** @var ProductCarousel $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+$title         = $block->getData('title');
+$style         = (int)($block->getData('style') ?: 3);
+$infoText      = $block->getData('info_text');
+$infoTooltip   = $block->getData('info_tooltip');
+$items         = $block->getPreparedItems();
+$itemCount     = count($items);
+$fouritems     = ($style == 4) ? 'xl:w-[1400px]' : 'xl:w-[1080px]';
+$carouselRenderer = $block->getRenderer();
+$templateRenderer = $viewModels->require(TemplateRenderer::class);
+?>
+
+<div class="widget-product-carousel py-6 relative w-full mx-auto mt-0 md:pt-10 lg:pt-12
+    <?= $escaper->escapeHtmlAttr($fouritems) ?>"
+     x-data="initProductCarousel({ total: <?= (int) $itemCount ?>, style: <?= (int) $style ?> })">
+
+    <?php if ($title): ?>
+        <h2 class="text-2xl font-bold mb-6 text-center"><?= $escaper->escapeHtml($title) ?></h2>
+    <?php endif; ?>
+
+    <?php if ($itemCount > 0): ?>
+        <div class="overflow-hidden relative px-4 mx-auto" :style="'width: ' + containerWidth">
+            <div
+                class="flex transition-transform duration-500 ease-out"
+                :style="{
+                    width: (total / visible * 100) + '%',
+                    transform: `translateX(-${current * (100 / total) * visible}%)`
+                }"
+                data-element-ga="section"
+                data-ga-section-name="carrusel de productos"
+            >
+                <?php foreach ($items as $index => $item): ?>
+                    <div
+                        class="flex-shrink-0 px-2 box-border"
+                        :style="{ width: (100 / total) + '%' }"
+                    >
+                        <?= /* @noEscape */ $templateRenderer->render(
+                            'Magento_Theme::molecule/product_card.phtml',
+                            [
+                                'product_data' => $item,
+                            ],
+                            \Movistar\HyvaWidgets\Block\Molecule\ProductCard::class
+                        ) ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        </div>
+
+        <div class="max-w-[330px] m-auto relative mt-6 lg:max-w-full lg:mx-4" x-show="total > visible">
+            <!-- Controls -->
+            <button
+                @click="prev"
+                class=" z-10 absolute left-0 top-1/2 -translate-y-1/2
+                lg:w-10 lg:h-10 lg:-top-[300px] lg:bg-white lg:shadow lg:rounded-full lg:p-2 hover:bg-gray-100"
+                aria-label="<?= $escaper->escapeHtmlAttr(__('Previous')) ?>"
+            >
+                <img
+                    src="<?= $escaper->escapeHtml($block->getViewFileUrl('images/icons/icon-chevron-gray.svg')) ?>"
+                    alt="icon-chevron"
+                    class="h-8 w-8 rotate-90 brightness-50 lg:h-6 lg:w-6 lg:brightness-[none]"
+                />
+            </button>
+
+            <button
+                @click="next"
+                class="z-10 absolute right-0 top-1/2 -translate-y-1/2
+                lg:w-10 lg:h-10 lg:-top-[300px] lg:bg-white lg:shadow lg:rounded-full lg:p-2 hover:bg-gray-100"
+                aria-label="<?= $escaper->escapeHtmlAttr(__('Next')) ?>"
+            >
+                <img
+                    src="<?= $escaper->escapeHtml($block->getViewFileUrl('images/icons/icon-chevron-gray.svg')) ?>"
+                    alt="icon-chevron"
+                    class="h-8 w-8 -rotate-90 brightness-50 lg:h-6 lg:w-6 lg:brightness-[none]"
+                />
+            </button>
+
+            <!-- Dots -->
+            <div class="flex justify-center gap-2">
+                <template x-for="i in Array.from({ length: pages }, (_, idx) => idx)" :key="i">
+                    <button
+                        type="button"
+                        class="w-3 h-3 rounded-full transition-colors duration-200 mr-2"
+                        :class="current === i ? 'bg-(--color-primary) w-[24px]' : 'bg-neutral-400'"
+                        @click="current = i"
+                        :aria-label="'<?= $escaper->escapeHtmlAttr(__('Go to slide')) ?> ' + (i + 1)"
+                    ></button>
+                </template>
+            </div>
+        </div>
+
+    <?php else: ?>
+        <div class="text-center text-gray-500 py-8">
+            <p><?= $escaper->escapeHtml(__('No products were found to display.')) ?></p>
+        </div>
+    <?php endif; ?>
+</div>
+
+<script>
+    (function () {
+        const pegasus = () => window?.hyva?.pegasus;
+
+        function initProductCarousel(config = {}) {
+            return {
+                current: 0,
+                total: Number(config.total || 0),
+                visible: 1,
+                pages: 1,
+                containerWidth: '90%',
+
+                init() {
+                    this.updateVisible();
+                    window.addEventListener('resize', () => this.updateVisible());
+                },
+
+                updateVisible() {
+                    const style = Number(config.style || 3);
+
+                    if (window.innerWidth > 1440) {
+                        this.visible = style;
+                        this.containerWidth = '90%';
+                    } else if (window.innerWidth > 1023) {
+                        this.visible = 3;
+                        this.containerWidth = '950px';
+                    } else if (window.innerWidth > 700) {
+                        this.visible = 2;
+                        this.containerWidth = '580px';
+                    } else {
+                        this.visible = 1;
+                        this.containerWidth = '95%';
+                    }
+
+                    this.pages = Math.ceil(this.total / this.visible);
+                    if (this.current >= this.pages) this.current = 0;
+                },
+
+                next() { this.current = (this.current + 1) % this.pages; },
+                prev() { this.current = (this.current - 1 + this.pages) % this.pages; }
+            };
+        }
+
+        function initLinkWithLoader() {
+            return {
+                handleClick(event) {
+                    if (event.ctrlKey || event.metaKey || event.button !== 0) return;
+                    pegasus()?.ui?.loader?.show({ scope: 'card-link', minDuration: 400 });
+                }
+            };
+        }
+
+        function initCreateCartForm(config = {}) {
+            return {
+                controllerUrl: config.controllerUrl || '/cart/createcart/',
+                sku: config.sku || '',
+                formKey: config.formKey || '',
+                redirectFallback: config.redirectFallback || '/hogar-mb/checkout/',
+                isLoading: false,
+
+                async sendToCreateCart() {
+                    if (this.isLoading) return;
+
+                    this.formKey = this.formKey
+                        || window.hyva?.getFormKey?.()
+                        || document.querySelector('input[name=form_key]')?.value
+                        || '';
+
+                    if (!this.sku || !this.formKey) {
+                        console.error(`Data error: sku=[${this.sku}], formKey=[${this.formKey}]`);
+                        return;
+                    }
+
+                    const http = pegasus()?.services?.http;
+                    const loader = pegasus()?.ui?.loader;
+
+                    if (typeof http?.post !== 'function' || !loader) {
+                        console.error('Pegasus services not available');
+                        window.location.reload();
+                        return;
+                    }
+
+                    this.isLoading = true;
+
+                    const loaderMeta = { scope: 'createCart', minDuration: 600 };
+                    let closed = false;
+                    const hideOnce = () => {
+                        if (closed) return;
+                        closed = true;
+                        loader.hide(loaderMeta);
+                    };
+
+                    try {
+                        const r = await http.post(
+                            this.controllerUrl,
+                            { internet_id: this.sku, form_key: this.formKey },
+                            {
+                                showLoader: true,
+                                keepLoader: true,
+                                timeoutMs: 15000,
+                                expectJson: true,
+                                loaderMeta
+                            }
+                        );
+
+                        if (!r.ok) throw new Error(r.errorMessage || `HTTP ${r.status || 0}`);
+                        const result = r.data;
+                        if (result?.status) {
+                            window.location.href = result.redirect_url || this.redirectFallback;
+                            return;
+                        }
+                        console.error(result?.message || 'Error creating cart');
+                        hideOnce();
+                        window.location.reload();
+
+                    } catch (error) {
+                        console.error('Error creating cart:', error);
+                        hideOnce();
+                        window.location.reload();
+                    } finally {
+                        this.isLoading = false;
+                    }
+                }
+            };
+        }
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('initProductCarousel', initProductCarousel);
+            Alpine.data('initCreateCartForm', initCreateCartForm);
+            Alpine.data('initLinkWithLoader', initLinkWithLoader);
+        }, { once: true });
+    })();
+</script>
+
+<?php $hyvaCsp->registerInlineScript(); ?>

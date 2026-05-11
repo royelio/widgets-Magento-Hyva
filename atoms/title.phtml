@@ -1,0 +1,50 @@
+<?php
+/** @var \Movistar\HyvaWidgets\Block\Atom\Title $block */
+/** @var \Magento\Framework\Escaper $escaper */
+
+$titleText = $block->getData('title_text') ?: '';
+$style = $block->getData('style') ?: 'h1';
+$accentText = $block->getData('accent_text') ?: '';
+
+$label = $style;
+$cssClasses = "font-normal";
+
+switch ($style) {
+    case 'h1':
+        $cssClasses .= ' px-6 text-text-primary text-[28px] leading-[32px] text-left
+        md:text-[40px] md:leading-[48px] lg:text-center';
+        break;
+    case 'h2':
+        $cssClasses .= ' px-4 text-text-primary text-[24px] leading-[32px] m-0 text-center
+        lg:text-[32px] lg:leading-[40px]';
+        break;
+    case 'h3':
+        $cssClasses .= ' px-4 text-text-gray02 text-[32px] leading-[40px] m-0 text-center
+        lg:text-[32px] lg:leading-[40px]';
+        break;
+    case 'p':
+        $cssClasses .= ' px-4 font-roboto mt-4 text-text-secondary text-sm leading-[20px]
+        md:text-base md:leading-[24px] md:mx-auto md:w-[460px] lg:w-full lg:text-center lg:text-lg';
+        break;
+    default:
+        $cssClasses .= ' text-lg';
+}
+?>
+
+<?php
+$hasAccentWrapper = ($style === 'h1' && !empty($accentText));
+?>
+
+
+<?php if ($style=='h1' && !empty($accentText)): ?>
+    <div class="w-[300px] md:w-[450px] md:mx-auto lg:w-full">
+<?php endif; ?>
+<<?= /* @noEscape */ $label ?> class="<?= $escaper->escapeHtmlAttr($cssClasses) ?>">
+    <?= $escaper->escapeHtml($titleText) ?>
+    <?php if ($style=='h1' && !empty($accentText)): ?>
+        <span class="text-text-accent"><?= $escaper->escapeHtml($accentText) ?></span>
+    <?php endif; ?>
+</<?= /* @noEscape */ $label ?>>
+<?php if ($style=='h1' && !empty($accentText)): ?>
+    </div>
+<?php endif; ?>

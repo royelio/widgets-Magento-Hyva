@@ -1,0 +1,25 @@
+<?php
+/** @var \Movistar\HyvaWidgets\Block\Atom\Label $block */
+/** @var \Magento\Framework\Escaper $escaper */
+/** @var \Hyva\Theme\Model\ViewModelRegistry $viewModels */
+
+use Hyva\Theme\ViewModel\HeroiconsOutline;
+
+$label = $block->getData('label') ?: '';
+$color = $block->getData('color') ?: '';
+$image = $block->getData('image') ?: '';
+
+$heroicons = $viewModels->require(HeroiconsOutline::class);
+
+?>
+
+<span class="flex items-center gap-1 justify-center absolute left-1/2 -bottom-3 -translate-x-1/2 text-on-accent
+                 font-roboto font-medium text-sm leading-[20px] mb-0.5 px-1 py-0.5 rounded-md bg-text-accent"
+      style="background: <?= $escaper->escapeHtmlAttr($color) ?>">
+    <img
+        src="<?= $escaper->escapeHtmlAttr($block->getViewFileUrl('images/icons/icon-gift.svg')) ?>"
+        alt="icon-gift"
+        class="w-4 h-4 p-0.5"
+    />
+    <?= $escaper->escapeHtml($label) ?>
+</span>

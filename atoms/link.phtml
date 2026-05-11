@@ -1,0 +1,39 @@
+<?php
+/** @var \Movistar\HyvaWidgets\Block\Atom\Link $block */
+/** @var \Magento\Framework\Escaper $escaper */
+
+$linkText = $block->getData('link_text') ?: '';
+$urlText = $block->getData('link_href') ?: '#';
+$style = $block->getData('style') ?: 'l1';
+
+$cssClasses = "relative text-center font-roboto font-medium";
+
+switch ($style) {
+    case 'l1':
+        $cssClasses .= ' text-roboto font-medium text-primary text-sm leading-[20px] py-1 after:absolute after:left-0
+         after:right-0 after:bottom-0 after:h-px after:bg-current lg:text-lg lg:leading-6';
+        break;
+    case 'l2':
+        $cssClasses .= ' bg-primary text-on-primary text-base leading-[24px] p-3 rounded-full';
+        break;
+    default:
+        $cssClasses .= ' text-lg';
+}
+?>
+
+<div class="block w-full text-center">
+    <?php if ($style == 'l1'): ?>
+        <a
+            href="<?= $escaper->escapeHtmlAttr($urlText) ?>"
+            title="<?= $escaper->escapeHtmlAttr($linkText) ?>"
+            class="<?= $escaper->escapeHtmlAttr($cssClasses) ?> inline-block"
+        >
+            <?= $escaper->escapeHtml($linkText) ?>
+        </a>
+
+    <?php else: ?>
+        <button class="<?= $escaper->escapeHtmlAttr($cssClasses) ?> inline-block min-w-[256px]">
+            <?= $escaper->escapeHtml($linkText) ?>
+        </button>
+    <?php endif; ?>
+</div>
